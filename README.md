@@ -6,11 +6,11 @@ Test your blockchain knowledge with 50 questions across 7 categories. Get your C
 
 - **Crypto IQ Test**: 50 questions from easy to expert level
 - **Daily Challenge**: New questions every day with streak tracking
-- **Airdrop Points System**: Earn points for future token airdrop
+- **Airdrop Points System**: Earn points for future possible token airdrop
 - **Leaderboard**: Compete with friends and climb the rankings
 - **Share Results**: Share your IQ score on social media
 
-## 🪂 Points System (For Future Airdrop)
+## 🪂 Points System (For Future possible Airdrop)
 
 Users earn points by:
 
