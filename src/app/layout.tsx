@@ -9,6 +9,9 @@ export const metadata: Metadata = {
     title: "Crypto IQ - Test Your Blockchain Knowledge",
     description: "Take the ultimate crypto quiz and discover your Crypto IQ. Compete with friends!",
     images: ["/og-image.png"],
+  }
+   other: {
+    "base:app_id": "696964b14d3a403912ed8bd1",
   },
 };
 
