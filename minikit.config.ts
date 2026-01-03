@@ -14,8 +14,8 @@ export const minikitConfig = {
   miniapp: {
     version: "1",
     name: "Crypto IQ",
-    iconUrl: "https://your-domain.vercel.app/icon.png",
-    homeUrl: "https://your-domain.vercel.app",
+    iconUrl: "https://crypto-iq-app.vercel.app/icon.png",
+    homeUrl: "https://crypto-iq-app.vercel.app/",
     splashImageUrl: "https://your-domain.vercel.app/splash.png",
     splashBackgroundColor: "#0a0a0f",
     primaryCategory: "games",
