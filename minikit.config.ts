@@ -16,18 +16,18 @@ export const minikitConfig = {
     name: "Crypto IQ",
     iconUrl: "https://your-domain.vercel.app/icon.png",
     homeUrl: "https://your-domain.vercel.app",
-    splashImageUrl: "https://your-domain.vercel.app/splash.png",
+    splashImageUrl: "crypto-iq-app.vercel.app/splash.png",
     splashBackgroundColor: "#0a0a0f",
     primaryCategory: "games",
     description: "Test your blockchain knowledge with 50 questions across 7 categories. Get your Crypto IQ score and compete with friends!",
     socialLinks: {
-      website: "https://your-domain.vercel.app"
+      website: "crypto-iq-app.vercel.app"
     },
     features: {
       // Set to true if your app uses notifications
       notifications: false
     },
     // Set to true during development to hide from search
-    noindex: true
+    noindex: false
   }
 };
