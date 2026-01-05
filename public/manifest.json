@@ -1,0 +1,26 @@
+{
+  "version": "1",
+  "name": "Crypto IQ",
+  "iconUrl": "https://crypto-iq-app.vercel.app/icon.svg",
+  "homeUrl": "https://crypto-iq-app.vercel.app",
+  "splashImageUrl": "https://crypto-iq-app.vercel.app/icon.svg",
+  "splashBackgroundColor": "#0a0a0f",
+  "primaryCategory": "games",
+  "description": "Test your blockchain knowledge with 50 questions across 7 categories. Get your Crypto IQ score and compete with friends!",
+  "socialLinks": {
+    "website": "https://crypto-iq-app.vercel.app"
+  },
+  "features": {
+    "notifications": false
+  },
+  "noindex": false
+}
+```
+
+5. Commit
+
+---
+
+After Vercel redeploys, test:
+```
+https://crypto-iq-app.vercel.app/manifest.json
