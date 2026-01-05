@@ -167,15 +167,21 @@ export const questions: Question[] = [
     points: 10
   },
 
-  // MEDIUM QUESTIONS (11-25)
+  // MEDIUM QUESTIONS (11-25) - Requires understanding, not just definitions
   {
     id: 11,
-    type: 'fill-blank',
+    type: 'multiple-choice',
     difficulty: 'medium',
     category: 'blockchain',
-    question: 'The process by which new Bitcoin blocks are created and transactions are verified is called _______.',
-    correctAnswer: 'mining',
-    explanation: 'Mining is the process of using computational power to solve complex puzzles, validate transactions, and add new blocks to the blockchain.',
+    question: 'If a blockchain has 12-second block times and requires 32 confirmations for finality, approximately how long until a transaction is considered final?',
+    options: [
+      'About 2 minutes',
+      'About 6.5 minutes',
+      'About 12 minutes',
+      'About 32 minutes'
+    ],
+    correctAnswer: 1,
+    explanation: '12 seconds × 32 confirmations = 384 seconds ≈ 6.4 minutes. Understanding block times and confirmation requirements is crucial for dApp development.',
     points: 20
   },
   {
@@ -183,15 +189,15 @@ export const questions: Question[] = [
     type: 'multiple-choice',
     difficulty: 'medium',
     category: 'blockchain',
-    question: 'What is the main difference between Proof of Work and Proof of Stake?',
+    question: 'What happens to the gas you pay if your Ethereum transaction runs out of gas mid-execution?',
     options: [
-      'PoW is faster than PoS',
-      'PoW uses computational power, PoS uses staked tokens',
-      'PoS is more decentralized than PoW',
-      'PoW doesn\'t require electricity'
+      'All gas is refunded',
+      'Unused gas is refunded, used gas is lost',
+      'All gas is consumed and the transaction reverts',
+      'The transaction pauses until you add more gas'
     ],
-    correctAnswer: 1,
-    explanation: 'Proof of Work requires miners to solve computational puzzles, while Proof of Stake selects validators based on the amount of tokens they\'ve staked.',
+    correctAnswer: 2,
+    explanation: 'When a transaction runs out of gas, it reverts but ALL the gas is consumed. This is why setting appropriate gas limits is important.',
     points: 20
   },
   {
@@ -199,9 +205,9 @@ export const questions: Question[] = [
     type: 'fill-blank',
     difficulty: 'medium',
     category: 'defi',
-    question: 'When you provide liquidity to an AMM and the price ratio changes, you may experience _______ loss.',
-    correctAnswer: 'impermanent',
-    explanation: 'Impermanent loss occurs when the price ratio of tokens in a liquidity pool changes compared to when you deposited.',
+    question: 'In Uniswap V3, liquidity providers can concentrate their liquidity within specific price _______ to earn more fees.',
+    correctAnswer: 'ranges',
+    explanation: 'Concentrated liquidity in Uniswap V3 allows LPs to provide liquidity within custom price ranges, increasing capital efficiency but requiring active management.',
     points: 20
   },
   {
@@ -209,15 +215,15 @@ export const questions: Question[] = [
     type: 'multiple-choice',
     difficulty: 'medium',
     category: 'defi',
-    question: 'What is TVL in DeFi?',
+    question: 'A protocol has a 150% collateralization ratio. If you deposit $1500 in ETH, what is the maximum you can borrow?',
     options: [
-      'Total Volume Locked',
-      'Total Value Locked',
-      'Token Value Limit',
-      'Trading Volume Level'
+      '$750',
+      '$1000',
+      '$1500',
+      '$2250'
     ],
     correctAnswer: 1,
-    explanation: 'TVL (Total Value Locked) measures the total value of crypto assets deposited in a DeFi protocol.',
+    explanation: 'With 150% collateralization, you need $1.50 of collateral per $1 borrowed. $1500 ÷ 1.5 = $1000 maximum borrow.',
     points: 20
   },
   {
@@ -225,15 +231,15 @@ export const questions: Question[] = [
     type: 'multiple-choice',
     difficulty: 'medium',
     category: 'defi',
-    question: 'What is yield farming?',
+    question: 'Why might impermanent loss become "permanent"?',
     options: [
-      'Mining cryptocurrency',
-      'Earning rewards by providing liquidity or staking',
-      'Day trading tokens',
-      'Creating new tokens'
+      'If you remove liquidity before prices return to the original ratio',
+      'If the pool runs out of one token',
+      'If gas fees exceed your earnings',
+      'If the protocol gets hacked'
     ],
-    correctAnswer: 1,
-    explanation: 'Yield farming involves depositing crypto into DeFi protocols to earn rewards, often through providing liquidity or staking.',
+    correctAnswer: 0,
+    explanation: 'Impermanent loss only becomes realized (permanent) when you withdraw. If you withdraw while prices differ from your entry, the loss is locked in.',
     points: 20
   },
   {
@@ -241,15 +247,15 @@ export const questions: Question[] = [
     type: 'multiple-choice',
     difficulty: 'medium',
     category: 'trading',
-    question: 'What is "slippage"?',
+    question: 'On a perpetual futures exchange, if the funding rate is -0.01% every 8 hours, who pays whom?',
     options: [
-      'Losing your private key',
-      'The difference between expected and executed price',
-      'A type of trading fee',
-      'Price manipulation by whales'
+      'Longs pay shorts',
+      'Shorts pay longs',
+      'Both pay the exchange',
+      'The exchange pays traders'
     ],
     correctAnswer: 1,
-    explanation: 'Slippage is the difference between the price you expect and the price at which your trade actually executes.',
+    explanation: 'Negative funding means shorts pay longs. This typically happens when the perpetual price is below the spot price, incentivizing longs.',
     points: 20
   },
   {
@@ -257,9 +263,9 @@ export const questions: Question[] = [
     type: 'fill-blank',
     difficulty: 'medium',
     category: 'trading',
-    question: 'A _______ order automatically sells your position when the price drops to a specified level.',
-    correctAnswer: 'stop-loss',
-    explanation: 'A stop-loss order helps limit potential losses by automatically selling when the price falls to your set level.',
+    question: 'When a large order is split into smaller pieces to minimize price impact, this is called _______ execution.',
+    correctAnswer: 'TWAP',
+    explanation: 'TWAP (Time-Weighted Average Price) execution splits large orders over time to reduce slippage and market impact.',
     points: 20
   },
   {
@@ -267,15 +273,15 @@ export const questions: Question[] = [
     type: 'spot-scam',
     difficulty: 'medium',
     category: 'security',
-    question: 'Which of these is a RED FLAG for a scam?',
+    question: 'Which transaction approval is MOST dangerous to sign?',
     options: [
-      'A DEX asking you to approve token spending',
-      'A DM offering to "validate your wallet"',
-      'A protocol requiring you to connect your wallet',
-      'A dApp showing your token balances'
+      'Approve 100 USDC for Uniswap Router',
+      'Approve unlimited USDC for an unknown contract',
+      'Transfer 50 USDC to a friend',
+      'Wrap 1 ETH to WETH'
     ],
     correctAnswer: 1,
-    explanation: 'Legitimate services never ask to "validate" or "sync" your wallet via DM. This is always a scam attempt.',
+    explanation: 'Unlimited approvals to unknown contracts are extremely dangerous - they can drain your entire balance at any time. Always verify contracts and limit approvals.',
     points: 20
   },
   {
@@ -283,26 +289,31 @@ export const questions: Question[] = [
     type: 'multiple-choice',
     difficulty: 'medium',
     category: 'security',
-    question: 'What is a hardware wallet?',
+    question: 'What makes a "sweeper bot" attack different from a regular hack?',
     options: [
-      'A wallet app on your computer',
-      'A physical device that stores private keys offline',
-      'A wallet provided by exchanges',
-      'A browser extension wallet'
+      'It steals NFTs instead of tokens',
+      'It monitors compromised wallets and instantly transfers any incoming funds',
+      'It only targets hardware wallets',
+      'It requires physical access to your device'
     ],
     correctAnswer: 1,
-    explanation: 'Hardware wallets are physical devices that keep your private keys offline, providing maximum security against online threats.',
+    explanation: 'Sweeper bots continuously monitor compromised wallets and immediately steal any funds sent to them, making recovery nearly impossible.',
     points: 20
   },
   {
     id: 20,
-    type: 'true-false',
+    type: 'multiple-choice',
     difficulty: 'medium',
     category: 'base',
-    question: 'Base uses optimistic rollups for transaction validation.',
-    options: ['True', 'False'],
-    correctAnswer: 0,
-    explanation: 'Base is an optimistic rollup Layer 2, meaning it assumes transactions are valid and only checks them if challenged.',
+    question: 'How does Base inherit security from Ethereum?',
+    options: [
+      'By running the same validators as Ethereum',
+      'By posting transaction data to Ethereum L1 and using fraud proofs',
+      'By using the same consensus mechanism',
+      'By copying Ethereum\'s code'
+    ],
+    correctAnswer: 1,
+    explanation: 'As an optimistic rollup, Base posts compressed transaction data to Ethereum and relies on a fraud proof system where anyone can challenge invalid state transitions.',
     points: 20
   },
   {
@@ -310,15 +321,15 @@ export const questions: Question[] = [
     type: 'multiple-choice',
     difficulty: 'medium',
     category: 'base',
-    question: 'Base is a Layer 2 built on top of which blockchain?',
+    question: 'What is the typical withdrawal time from Base to Ethereum mainnet, and why?',
     options: [
-      'Solana',
-      'Ethereum',
-      'Bitcoin',
-      'Polygon'
+      '10 minutes - for transaction confirmation',
+      '1 hour - for security checks',
+      '7 days - for the fraud proof challenge period',
+      '24 hours - for liquidity settlement'
     ],
-    correctAnswer: 1,
-    explanation: 'Base is an Ethereum Layer 2 that inherits Ethereum\'s security while offering lower fees and faster transactions.',
+    correctAnswer: 2,
+    explanation: 'Optimistic rollups have a ~7 day withdrawal period to allow time for fraud proofs. Users can use third-party bridges for faster withdrawals at a cost.',
     points: 20
   },
   {
@@ -326,20 +337,25 @@ export const questions: Question[] = [
     type: 'fill-blank',
     difficulty: 'medium',
     category: 'solana',
-    question: 'On Solana, smart contracts are called _______.',
-    correctAnswer: 'programs',
-    explanation: 'Solana refers to smart contracts as "programs" - they are stateless and store data in separate accounts.',
+    question: 'Solana transactions can include multiple instructions that execute _______, meaning all succeed or all fail together.',
+    correctAnswer: 'atomically',
+    explanation: 'Atomic execution ensures transaction integrity - if any instruction fails, the entire transaction reverts, preventing partial state changes.',
     points: 20
   },
   {
     id: 23,
-    type: 'true-false',
+    type: 'multiple-choice',
     difficulty: 'medium',
     category: 'solana',
-    question: 'Solana uses an account model where programs are stateless and data is stored in separate accounts.',
-    options: ['True', 'False'],
-    correctAnswer: 0,
-    explanation: 'Unlike Ethereum, Solana separates program logic from data storage, making programs reusable and efficient.',
+    question: 'Why does Solana require you to pre-declare all accounts a transaction will read or write?',
+    options: [
+      'For billing purposes',
+      'To enable parallel transaction processing',
+      'To prevent spam',
+      'For regulatory compliance'
+    ],
+    correctAnswer: 1,
+    explanation: 'By knowing which accounts each transaction touches, Solana can run non-overlapping transactions in parallel, dramatically increasing throughput.',
     points: 20
   },
   {
@@ -347,15 +363,15 @@ export const questions: Question[] = [
     type: 'order-ranking',
     difficulty: 'medium',
     category: 'history',
-    question: 'Arrange these events chronologically (earliest first):',
+    question: 'Arrange these DeFi protocols by launch date (earliest first):',
     options: [
-      'Bitcoin whitepaper',
-      'Ethereum launch',
-      'The DAO hack',
-      'DeFi Summer'
+      'Uniswap V1',
+      'Compound',
+      'Aave (originally ETHLend)',
+      'MakerDAO (DAI launch)'
     ],
-    correctAnswer: [0, 1, 2, 3],
-    explanation: 'Bitcoin whitepaper (2008), Ethereum launch (2015), The DAO hack (2016), DeFi Summer (2020).',
+    correctAnswer: [2, 3, 0, 1],
+    explanation: 'ETHLend (2017), MakerDAO DAI (Dec 2017), Uniswap V1 (Nov 2018), Compound (Sep 2018 - mainnet 2019).',
     points: 20
   },
   {
@@ -363,33 +379,33 @@ export const questions: Question[] = [
     type: 'multiple-choice',
     difficulty: 'medium',
     category: 'history',
-    question: 'What was "The DAO"?',
+    question: 'What caused the Terra/LUNA collapse in May 2022?',
     options: [
-      'A centralized exchange',
-      'An early decentralized investment fund on Ethereum',
-      'A Bitcoin mining pool',
-      'A stablecoin protocol'
+      'A smart contract exploit',
+      'The algorithmic stablecoin UST lost its peg, creating a death spiral',
+      'The founder ran away with funds',
+      'Government seizure of assets'
     ],
     correctAnswer: 1,
-    explanation: 'The DAO was one of the first DAOs on Ethereum, which was hacked in 2016, leading to the Ethereum/Ethereum Classic split.',
+    explanation: 'UST depegged and the mint/burn mechanism with LUNA created hyperinflation as users rushed to exit, destroying ~$40B in value.',
     points: 20
   },
 
-  // HARD QUESTIONS (26-40)
+  // HARD QUESTIONS (26-40) - Requires deep technical knowledge
   {
     id: 26,
     type: 'multiple-choice',
     difficulty: 'hard',
     category: 'defi',
-    question: 'What determines the price of assets in a constant product AMM?',
+    question: 'In Uniswap V2, if a pool has 100 ETH and 200,000 USDC, what price impact would buying 10 ETH have (approximately)?',
     options: [
-      'Order book depth',
-      'The ratio of tokens in the pool (x * y = k)',
-      'Oracle price feeds',
-      'Governance voting'
+      '~5%',
+      '~10%',
+      '~11%',
+      '~20%'
     ],
-    correctAnswer: 1,
-    explanation: 'Constant product AMMs like Uniswap use the formula x * y = k, where prices are determined by the ratio of tokens in the pool.',
+    correctAnswer: 2,
+    explanation: 'Using x*y=k: k=20M. After buying 10 ETH (90 left), USDC needed = 20M/90 = 222,222. Cost = 22,222 USDC for 10 ETH vs 20,000 at spot = ~11% price impact.',
     points: 35
   },
   {
@@ -397,15 +413,15 @@ export const questions: Question[] = [
     type: 'multiple-choice',
     difficulty: 'hard',
     category: 'defi',
-    question: 'What is a flash loan?',
+    question: 'What is the primary risk of using flash loans for arbitrage?',
     options: [
-      'A loan with very high interest rates',
-      'An uncollateralized loan that must be repaid in the same transaction',
-      'A loan from a centralized exchange',
-      'A loan backed by NFTs'
+      'The loan might not be approved',
+      'You could lose the gas fee if the transaction reverts',
+      'Interest rates are too high',
+      'Flash loans require collateral'
     ],
     correctAnswer: 1,
-    explanation: 'Flash loans allow borrowing without collateral, but the entire loan must be repaid within the same transaction block.',
+    explanation: 'Flash loans are atomic - if the arbitrage fails, the entire transaction reverts. However, you still lose the gas fee for the failed transaction.',
     points: 35
   },
   {
@@ -413,9 +429,9 @@ export const questions: Question[] = [
     type: 'fill-blank',
     difficulty: 'hard',
     category: 'defi',
-    question: 'A protocol that allows users to borrow against their crypto without selling it is called a _______ protocol.',
-    correctAnswer: 'lending',
-    explanation: 'Lending protocols like Aave and Compound allow users to deposit crypto as collateral and borrow against it.',
+    question: 'The attack where an attacker manipulates an oracle price within a single transaction to exploit a protocol is called a _______ attack.',
+    correctAnswer: 'sandwich',
+    explanation: 'While "oracle manipulation" is related, sandwich attacks specifically front-run and back-run victim transactions to extract value. Price oracle attacks are a broader category.',
     points: 35
   },
   {
@@ -423,9 +439,9 @@ export const questions: Question[] = [
     type: 'fill-blank',
     difficulty: 'hard',
     category: 'trading',
-    question: 'A funding rate in perpetual futures is positive when longs pay _______.',
-    correctAnswer: 'shorts',
-    explanation: 'Positive funding means long positions pay short positions, typically occurring when the perp price is above spot.',
+    question: 'In options trading, the greek letter _______ measures how much an option\'s delta changes when the underlying price moves.',
+    correctAnswer: 'gamma',
+    explanation: 'Gamma measures the rate of change of delta. High gamma means delta changes rapidly with price movement, important for managing options positions.',
     points: 35
   },
   {
@@ -433,15 +449,15 @@ export const questions: Question[] = [
     type: 'multiple-choice',
     difficulty: 'hard',
     category: 'trading',
-    question: 'What is MEV (Maximal Extractable Value)?',
+    question: 'A trader uses 10x leverage to long BTC at $50,000 with $1,000 collateral. At what price will they be liquidated (assuming 100% maintenance margin)?',
     options: [
-      'The maximum profit from holding tokens',
-      'Value extracted by reordering, inserting, or censoring transactions',
-      'The maximum supply of a token',
-      'A type of staking reward'
+      '$40,000',
+      '$45,000',
+      '$47,500',
+      '$49,000'
     ],
     correctAnswer: 1,
-    explanation: 'MEV refers to profits that miners/validators can extract by manipulating the order of transactions in a block.',
+    explanation: 'With 10x leverage, a 10% move wipes out the margin. Liquidation typically occurs before 100% loss, around 10% drop = $45,000.',
     points: 35
   },
   {
@@ -449,9 +465,9 @@ export const questions: Question[] = [
     type: 'fill-blank',
     difficulty: 'hard',
     category: 'security',
-    question: 'A _______ signature allows someone to list your NFTs or drain tokens without a transaction appearing in your wallet history.',
-    correctAnswer: 'off-chain',
-    explanation: 'Off-chain signatures (like those used by OpenSea) can be exploited by scammers to steal assets without obvious on-chain activity.',
+    question: 'A vulnerability where a smart contract can be called repeatedly before the first execution completes is called a _______ attack.',
+    correctAnswer: 'reentrancy',
+    explanation: 'Reentrancy attacks exploit contracts that make external calls before updating state. The infamous DAO hack used this vulnerability.',
     points: 35
   },
   {
@@ -459,26 +475,31 @@ export const questions: Question[] = [
     type: 'multiple-choice',
     difficulty: 'hard',
     category: 'security',
-    question: 'What is address poisoning?',
+    question: 'What is the danger of using tx.origin for authentication in Solidity?',
     options: [
-      'Sending malware through transactions',
-      'Creating lookalike addresses in your transaction history',
-      'Corrupting smart contract storage',
-      'DNS hijacking of dApp frontends'
+      'It\'s slower than msg.sender',
+      'It always returns the zero address',
+      'A malicious contract can trick users into calling it, inheriting their tx.origin',
+      'It doesn\'t work on Layer 2s'
     ],
-    correctAnswer: 1,
-    explanation: 'Address poisoning involves sending small transactions from addresses that look similar to ones you\'ve used, hoping you\'ll copy the wrong one.',
+    correctAnswer: 2,
+    explanation: 'tx.origin returns the original transaction sender. If a user calls MaliciousContract which calls YourContract, tx.origin is still the user, enabling phishing attacks.',
     points: 35
   },
   {
     id: 33,
-    type: 'true-false',
+    type: 'multiple-choice',
     difficulty: 'hard',
     category: 'blockchain',
-    question: 'In a proof-of-stake system, validators are selected purely based on the amount staked, with no randomness involved.',
-    options: ['True', 'False'],
+    question: 'What is the purpose of EIP-1559\'s base fee mechanism?',
+    options: [
+      'To make transactions cheaper',
+      'To make gas prices more predictable and burn ETH',
+      'To speed up block times',
+      'To increase validator rewards'
+    ],
     correctAnswer: 1,
-    explanation: 'Most PoS systems include randomness in validator selection to prevent the richest validators from always being chosen.',
+    explanation: 'EIP-1559 introduced a base fee that adjusts algorithmically based on demand, making fees more predictable. The base fee is burned, reducing ETH supply.',
     points: 35
   },
   {
@@ -486,15 +507,15 @@ export const questions: Question[] = [
     type: 'multiple-choice',
     difficulty: 'hard',
     category: 'blockchain',
-    question: 'What is a Merkle tree used for in blockchain?',
+    question: 'In the context of MEV, what is a "backrun"?',
     options: [
-      'Encrypting private keys',
-      'Efficiently verifying data integrity',
-      'Generating wallet addresses',
-      'Calculating gas fees'
+      'Canceling a pending transaction',
+      'Placing a transaction immediately after a target transaction',
+      'Reversing a confirmed transaction',
+      'Running a node in reverse sync mode'
     ],
     correctAnswer: 1,
-    explanation: 'Merkle trees allow efficient verification that a transaction is included in a block without downloading the entire blockchain.',
+    explanation: 'Backrunning places your transaction right after a target (e.g., after a large swap) to capture arbitrage. Combined with frontrunning, it creates sandwich attacks.',
     points: 35
   },
   {
@@ -502,15 +523,15 @@ export const questions: Question[] = [
     type: 'multiple-choice',
     difficulty: 'hard',
     category: 'solana',
-    question: 'What is the purpose of the Solana Program Library (SPL)?',
+    question: 'What happens to rent-exempt SOL when a Solana account is closed?',
     options: [
-      'A collection of frontend components',
-      'Standard on-chain programs for common functionality (tokens, etc.)',
-      'A testing framework',
-      'A block explorer API'
+      'It\'s burned',
+      'It\'s sent to a system account',
+      'It\'s refunded to a specified account',
+      'It remains locked forever'
     ],
-    correctAnswer: 1,
-    explanation: 'SPL provides standard programs for common needs like token creation, token swaps, and lending.',
+    correctAnswer: 2,
+    explanation: 'When closing accounts, the rent-exempt SOL balance is refunded to a specified recipient. This is why proper account cleanup is important for cost efficiency.',
     points: 35
   },
   {
@@ -518,9 +539,9 @@ export const questions: Question[] = [
     type: 'fill-blank',
     difficulty: 'hard',
     category: 'solana',
-    question: 'Solana achieves high throughput partly through its unique _______ consensus mechanism that timestamps transactions.',
-    correctAnswer: 'proof of history',
-    explanation: 'Proof of History creates a historical record that proves events occurred at specific moments, reducing validator communication overhead.',
+    question: 'The Solana runtime feature that allows compute units to be pre-declared to help validators schedule transactions is called _______ limits.',
+    correctAnswer: 'compute',
+    explanation: 'Compute limits help validators estimate resource usage for parallel processing. Exceeding declared compute units causes transaction failure.',
     points: 35
   },
   {
@@ -528,9 +549,9 @@ export const questions: Question[] = [
     type: 'fill-blank',
     difficulty: 'hard',
     category: 'base',
-    question: 'Base was developed by _______, making it the first L2 launched by a publicly traded company.',
-    correctAnswer: 'coinbase',
-    explanation: 'Coinbase developed Base, making it unique as the first Layer 2 from a public company (NASDAQ: COIN).',
+    question: 'In optimistic rollups like Base, the period during which fraud proofs can be submitted is called the _______ period.',
+    correctAnswer: 'challenge',
+    explanation: 'The challenge period (typically 7 days) allows anyone to submit fraud proofs if they detect invalid state transitions.',
     points: 35
   },
   {
@@ -538,41 +559,47 @@ export const questions: Question[] = [
     type: 'multiple-choice',
     difficulty: 'hard',
     category: 'base',
-    question: 'What technology stack is Base built on?',
+    question: 'What role does the Sequencer play in Base?',
     options: [
-      'Arbitrum Nitro',
-      'OP Stack',
-      'zkSync Era',
-      'Polygon zkEVM'
+      'It validates fraud proofs',
+      'It orders and batches transactions before posting to L1',
+      'It distributes rewards to validators',
+      'It manages the bridge between L1 and L2'
     ],
     correctAnswer: 1,
-    explanation: 'Base is built on the OP Stack (Optimism\'s open-source framework) and is part of the Optimism Superchain.',
+    explanation: 'The Sequencer orders transactions, executes them, and periodically posts compressed batches to Ethereum L1 for data availability.',
     points: 35
   },
   {
     id: 39,
-    type: 'fill-blank',
+    type: 'multiple-choice',
     difficulty: 'hard',
-    category: 'history',
-    question: 'The 2022 collapse of _______ triggered a contagion that brought down Celsius, BlockFi, and eventually FTX.',
-    correctAnswer: 'terra',
-    explanation: 'The Terra/Luna collapse in May 2022 triggered a chain reaction that exposed overleveraged crypto companies.',
+    category: 'defi',
+    question: 'Why do Curve pools for like-assets (e.g., stablecoins) use a different formula than Uniswap?',
+    options: [
+      'To charge lower fees',
+      'To minimize slippage for assets that should trade near 1:1',
+      'To prevent flash loan attacks',
+      'To reduce gas costs'
+    ],
+    correctAnswer: 1,
+    explanation: 'Curve\'s StableSwap invariant creates a flatter curve near the 1:1 ratio, dramatically reducing slippage for like-asset swaps compared to constant product.',
     points: 35
   },
   {
     id: 40,
     type: 'multiple-choice',
     difficulty: 'hard',
-    category: 'history',
-    question: 'What was the main innovation of EIP-1559?',
+    category: 'security',
+    question: 'What is "storage collision" in upgradeable smart contracts?',
     options: [
-      'Proof of Stake transition',
-      'Base fee burning mechanism',
-      'Layer 2 scaling',
-      'Smart contract upgrades'
+      'Running out of storage space',
+      'Two contracts trying to write to the same address',
+      'New contract versions overwriting storage slots used by old versions',
+      'Hash collision in the storage trie'
     ],
-    correctAnswer: 1,
-    explanation: 'EIP-1559 introduced a base fee that gets burned, making ETH potentially deflationary and improving fee predictability.',
+    correctAnswer: 2,
+    explanation: 'In proxy patterns, if the new implementation uses different storage layout, it can corrupt existing data. This is why upgradeable contracts must maintain storage compatibility.',
     points: 35
   },
 

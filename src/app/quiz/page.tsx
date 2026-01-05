@@ -1,14 +1,21 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { ArrowLeft, Clock, ChevronRight, Brain, CheckCircle, XCircle, Coins, Zap, Timer } from 'lucide-react';
 import { questions, Question, categoryNames, calculateIQ, getIQTitle, Category, Difficulty } from '@/data/questions';
 import { useUser } from '@/context/UserContext';
 import { APP_CONFIG } from '@/config/app.config';
+import { shuffleOptionsSeeded, checkAnswerWithTypoTolerance } from '@/utils/quiz';
 
 type SpeedTier = 'gold' | 'silver' | 'bronze' | 'none';
+
+type ShuffledQuestion = {
+  original: Question;
+  shuffledOptions: string[] | undefined;
+  shuffledCorrectIndex: number;
+};
 
 type UserAnswer = {
   questionId: number;
@@ -61,8 +68,35 @@ export default function QuizPage() {
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
   const [questionStartTime, setQuestionStartTime] = useState(Date.now());
+  
+  // Session seed for consistent shuffling during this quiz session
+  const [sessionSeed] = useState(() => Date.now());
 
-  const currentQuestion = questions[currentIndex];
+  // Pre-shuffle all questions for this session
+  const shuffledQuestions: ShuffledQuestion[] = useMemo(() => {
+    return questions.map((q, idx) => {
+      if (q.options && (q.type === 'multiple-choice' || q.type === 'true-false' || q.type === 'spot-scam')) {
+        const { shuffledOptions, newCorrectIndex } = shuffleOptionsSeeded(
+          q.options,
+          q.correctAnswer as number,
+          sessionSeed + q.id
+        );
+        return {
+          original: q,
+          shuffledOptions,
+          shuffledCorrectIndex: newCorrectIndex,
+        };
+      }
+      return {
+        original: q,
+        shuffledOptions: q.options,
+        shuffledCorrectIndex: q.correctAnswer as number,
+      };
+    });
+  }, [sessionSeed]);
+
+  const currentShuffled = shuffledQuestions[currentIndex];
+  const currentQuestion = currentShuffled.original;
   const progress = ((currentIndex) / questions.length) * 100;
   const timeLimit = currentQuestion ? getTimeLimit(currentQuestion.difficulty) : 15;
   const timePercent = (timeRemaining / timeLimit) * 100;
@@ -122,17 +156,25 @@ export default function QuizPage() {
     return () => clearInterval(interval);
   }, [timerActive, showResult, handleTimeout]);
 
-  const checkAnswer = (question: Question, answer: string | number | number[] | null): boolean => {
+  const checkAnswer = (shuffled: ShuffledQuestion, answer: string | number | number[] | null): boolean => {
     if (answer === null) return false;
+    const question = shuffled.original;
+    
     if (question.type === 'fill-blank') {
-      return (answer as string).toLowerCase().trim() === (question.correctAnswer as string).toLowerCase();
+      // Use typo tolerance for fill-in-blank questions
+      return checkAnswerWithTypoTolerance(
+        answer as string,
+        question.correctAnswer as string,
+        3 // Allow up to 3 typos
+      );
     }
     if (question.type === 'order-ranking') {
       const correct = question.correctAnswer as number[];
       const given = answer as number[];
       return correct.every((val, idx) => val === given[idx]);
     }
-    return answer === question.correctAnswer;
+    // For multiple choice, compare with shuffled correct index
+    return answer === shuffled.shuffledCorrectIndex;
   };
 
   const handleSubmitAnswer = () => {
@@ -147,7 +189,7 @@ export default function QuizPage() {
       answer = selectedAnswer;
     }
 
-    const isCorrect = checkAnswer(currentQuestion, answer);
+    const isCorrect = checkAnswer(currentShuffled, answer);
     const timeAllowed = getTimeLimit(currentQuestion.difficulty);
     const timeTaken = (Date.now() - questionStartTime) / 1000;
     const { tier, bonus } = calculateSpeedBonus(timeTaken, timeAllowed, currentQuestion.points, isCorrect);
@@ -469,10 +511,10 @@ export default function QuizPage() {
             {currentQuestion.type === 'multiple-choice' || 
              currentQuestion.type === 'true-false' || 
              currentQuestion.type === 'spot-scam' ? (
-              currentQuestion.options?.map((option, idx) => {
+              currentShuffled.shuffledOptions?.map((option, idx) => {
                 let btnClass = 'option-btn';
                 if (showResult) {
-                  if (idx === currentQuestion.correctAnswer) {
+                  if (idx === currentShuffled.shuffledCorrectIndex) {
                     btnClass += ' correct';
                   } else if (idx === selectedAnswer) {
                     btnClass += ' incorrect';
@@ -493,10 +535,10 @@ export default function QuizPage() {
                         {String.fromCharCode(65 + idx)}
                       </span>
                       <span className="flex-1 text-left">{option}</span>
-                      {showResult && idx === currentQuestion.correctAnswer && (
+                      {showResult && idx === currentShuffled.shuffledCorrectIndex && (
                         <CheckCircle className="w-5 h-5 text-green-400 ml-auto" />
                       )}
-                      {showResult && idx === selectedAnswer && idx !== currentQuestion.correctAnswer && (
+                      {showResult && idx === selectedAnswer && idx !== currentShuffled.shuffledCorrectIndex && (
                         <XCircle className="w-5 h-5 text-red-400 ml-auto" />
                       )}
                     </div>
@@ -522,6 +564,9 @@ export default function QuizPage() {
                   <div className="mt-3 text-sm">
                     <span className="text-[#a0a0b0]">Correct answer: </span>
                     <span className="text-green-400 mono">{currentQuestion.correctAnswer as string}</span>
+                    {lastAnswer?.isCorrect && fillBlankAnswer.toLowerCase() !== (currentQuestion.correctAnswer as string).toLowerCase() && (
+                      <span className="text-[#a0a0b0] ml-2">(typo accepted ✓)</span>
+                    )}
                   </div>
                 )}
               </div>

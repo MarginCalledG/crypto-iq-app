@@ -1,11 +1,12 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import Link from 'next/link';
 import { ArrowLeft, Flame, Trophy, Clock, CheckCircle, XCircle, ChevronRight, Zap, Coins, Timer } from 'lucide-react';
 import { questions, Question, categoryNames, Difficulty } from '@/data/questions';
 import { useUser } from '@/context/UserContext';
 import { APP_CONFIG } from '@/config/app.config';
+import { shuffleOptionsSeeded, checkAnswerWithTypoTolerance } from '@/utils/quiz';
 
 // Get questions for daily challenge based on date
 // Uses seeded random so everyone gets same questions on same day
@@ -33,6 +34,12 @@ function getDailyQuestions(): Question[] {
 }
 
 type SpeedTier = 'gold' | 'silver' | 'bronze' | 'none';
+
+type ShuffledQuestion = {
+  original: Question;
+  shuffledOptions: string[] | undefined;
+  shuffledCorrectIndex: number;
+};
 
 type UserAnswer = {
   questionId: number;
@@ -86,6 +93,35 @@ export default function DailyPage() {
   const [timeRemaining, setTimeRemaining] = useState(0);
   const [timerActive, setTimerActive] = useState(false);
   const [questionStartTime, setQuestionStartTime] = useState(Date.now());
+  
+  // Session seed for shuffling (use today's date for consistent daily shuffling)
+  const sessionSeed = useMemo(() => {
+    const today = new Date();
+    return today.getFullYear() * 10000 + (today.getMonth() + 1) * 100 + today.getDate();
+  }, []);
+
+  // Pre-shuffle questions for this session
+  const shuffledQuestions: ShuffledQuestion[] = useMemo(() => {
+    return dailyQuestions.map((q) => {
+      if (q.options && (q.type === 'multiple-choice' || q.type === 'true-false' || q.type === 'spot-scam')) {
+        const { shuffledOptions, newCorrectIndex } = shuffleOptionsSeeded(
+          q.options,
+          q.correctAnswer as number,
+          sessionSeed + q.id
+        );
+        return {
+          original: q,
+          shuffledOptions,
+          shuffledCorrectIndex: newCorrectIndex,
+        };
+      }
+      return {
+        original: q,
+        shuffledOptions: q.options,
+        shuffledCorrectIndex: q.correctAnswer as number,
+      };
+    });
+  }, [dailyQuestions, sessionSeed]);
 
   useEffect(() => {
     // Check if already played today
@@ -106,7 +142,8 @@ export default function DailyPage() {
     }
   }, []);
 
-  const currentQuestion = dailyQuestions[currentIndex];
+  const currentShuffled = shuffledQuestions[currentIndex];
+  const currentQuestion = currentShuffled?.original;
   const progress = ((currentIndex) / dailyQuestions.length) * 100;
   const timeLimit = currentQuestion ? getTimeLimit(currentQuestion.difficulty) : 15;
   const timePercent = (timeRemaining / timeLimit) * 100;
@@ -163,12 +200,18 @@ export default function DailyPage() {
     return () => clearInterval(interval);
   }, [timerActive, showResult, handleTimeout]);
 
-  const checkAnswer = (question: Question, answer: string | number | number[] | null): boolean => {
+  const checkAnswer = (shuffled: ShuffledQuestion, answer: string | number | number[] | null): boolean => {
     if (answer === null) return false;
+    const question = shuffled.original;
+    
     if (question.type === 'fill-blank') {
-      return (answer as string).toLowerCase().trim() === (question.correctAnswer as string).toLowerCase();
+      return checkAnswerWithTypoTolerance(
+        answer as string,
+        question.correctAnswer as string,
+        3
+      );
     }
-    return answer === question.correctAnswer;
+    return answer === shuffled.shuffledCorrectIndex;
   };
 
   const handleSubmitAnswer = () => {
@@ -181,7 +224,7 @@ export default function DailyPage() {
       answer = selectedAnswer;
     }
 
-    const isCorrect = checkAnswer(currentQuestion, answer);
+    const isCorrect = checkAnswer(currentShuffled, answer);
     const timeAllowed = getTimeLimit(currentQuestion.difficulty);
     const timeTaken = (Date.now() - questionStartTime) / 1000;
     const { tier, bonus } = calculateSpeedBonus(timeTaken, timeAllowed, currentQuestion.points, isCorrect);
@@ -231,7 +274,7 @@ export default function DailyPage() {
       localStorage.setItem('dailyStreakDate', today);
       
       // Save score
-      const correctCount = userAnswers.filter(a => a.isCorrect).length + (checkAnswer(currentQuestion, selectedAnswer || fillBlankAnswer) ? 1 : 0);
+      const correctCount = userAnswers.filter(a => a.isCorrect).length + (checkAnswer(currentShuffled, selectedAnswer || fillBlankAnswer) ? 1 : 0);
       localStorage.setItem('dailyTodayScore', correctCount.toString());
     }
   };
@@ -468,10 +511,10 @@ export default function DailyPage() {
             {currentQuestion.type === 'multiple-choice' || 
              currentQuestion.type === 'true-false' || 
              currentQuestion.type === 'spot-scam' ? (
-              currentQuestion.options?.map((option, idx) => {
+              currentShuffled.shuffledOptions?.map((option, idx) => {
                 let btnClass = 'option-btn';
                 if (showResult) {
-                  if (idx === currentQuestion.correctAnswer) {
+                  if (idx === currentShuffled.shuffledCorrectIndex) {
                     btnClass += ' correct';
                   } else if (idx === selectedAnswer) {
                     btnClass += ' incorrect';
@@ -492,10 +535,10 @@ export default function DailyPage() {
                         {String.fromCharCode(65 + idx)}
                       </span>
                       <span className="flex-1 text-left">{option}</span>
-                      {showResult && idx === currentQuestion.correctAnswer && (
+                      {showResult && idx === currentShuffled.shuffledCorrectIndex && (
                         <CheckCircle className="w-5 h-5 text-green-400 ml-auto" />
                       )}
-                      {showResult && idx === selectedAnswer && idx !== currentQuestion.correctAnswer && (
+                      {showResult && idx === selectedAnswer && idx !== currentShuffled.shuffledCorrectIndex && (
                         <XCircle className="w-5 h-5 text-red-400 ml-auto" />
                       )}
                     </div>
@@ -521,6 +564,9 @@ export default function DailyPage() {
                   <div className="mt-3 text-sm">
                     <span className="text-[#a0a0b0]">Correct answer: </span>
                     <span className="text-green-400 mono">{currentQuestion.correctAnswer as string}</span>
+                    {lastAnswer?.isCorrect && fillBlankAnswer.toLowerCase() !== (currentQuestion.correctAnswer as string).toLowerCase() && (
+                      <span className="text-[#a0a0b0] ml-2">(typo accepted ✓)</span>
+                    )}
                   </div>
                 )}
               </div>

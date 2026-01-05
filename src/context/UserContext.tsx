@@ -6,6 +6,7 @@ import { POINTS_CONFIG, calculatePointsWithMultiplier } from '@/types/points';
 interface UserData {
   walletAddress: string | null;
   farcasterUsername: string | null;
+  farcasterFid: number | null;
   totalPoints: number;
   currentStreak: number;
   longestStreak: number;
@@ -38,6 +39,7 @@ interface UserContextType {
 const defaultUser: UserData = {
   walletAddress: null,
   farcasterUsername: null,
+  farcasterFid: null,
   totalPoints: 0,
   currentStreak: 0,
   longestStreak: 0,
@@ -54,20 +56,98 @@ export function UserProvider({ children }: { children: ReactNode }) {
   const [pointsHistory, setPointsHistory] = useState<PointsHistoryEntry[]>([]);
   const [isConnected, setIsConnected] = useState(false);
 
-  // Load user data from localStorage on mount
+  // Auto-connect on mount - check for Base Mini App environment
   useEffect(() => {
-    const savedUser = localStorage.getItem('cryptoiq_user');
-    const savedHistory = localStorage.getItem('cryptoiq_points_history');
-    
-    if (savedUser) {
-      const parsed = JSON.parse(savedUser);
-      setUser(parsed);
-      setIsConnected(!!parsed.walletAddress);
-    }
-    
-    if (savedHistory) {
-      setPointsHistory(JSON.parse(savedHistory));
-    }
+    const initializeWallet = async () => {
+      // First check localStorage for existing user
+      const savedUser = localStorage.getItem('cryptoiq_user');
+      const savedHistory = localStorage.getItem('cryptoiq_points_history');
+      
+      if (savedUser) {
+        const parsed = JSON.parse(savedUser);
+        setUser(parsed);
+        setIsConnected(!!parsed.walletAddress);
+        
+        if (savedHistory) {
+          setPointsHistory(JSON.parse(savedHistory));
+        }
+        return;
+      }
+
+      // Try to auto-connect in Base Mini App environment
+      try {
+        // Check for MiniKit SDK (Base Mini App)
+        if (typeof window !== 'undefined') {
+          // Method 1: Check for window.MiniKit (Base MiniKit SDK)
+          const minikit = (window as any).MiniKit;
+          if (minikit) {
+            const context = await minikit.getContext();
+            if (context?.user) {
+              const userData = {
+                ...defaultUser,
+                walletAddress: context.user.wallet?.address || null,
+                farcasterUsername: context.user.username || null,
+                farcasterFid: context.user.fid || null,
+              };
+              setUser(userData);
+              setIsConnected(!!userData.walletAddress);
+              localStorage.setItem('cryptoiq_user', JSON.stringify(userData));
+              return;
+            }
+          }
+
+          // Method 2: Check for Farcaster Frame context
+          const fc = (window as any).farcaster;
+          if (fc) {
+            const context = await fc.getContext();
+            if (context?.user) {
+              const userData = {
+                ...defaultUser,
+                walletAddress: context.user?.wallet?.address || null,
+                farcasterUsername: context.user?.username || null,
+                farcasterFid: context.user?.fid || null,
+              };
+              setUser(userData);
+              setIsConnected(!!userData.walletAddress);
+              localStorage.setItem('cryptoiq_user', JSON.stringify(userData));
+              return;
+            }
+          }
+
+          // Method 3: Check for parent frame communication (embedded in Base app)
+          if (window.parent !== window) {
+            // We're in an iframe, try to get context from parent
+            window.parent.postMessage({ type: 'GET_CONTEXT' }, '*');
+            
+            // Listen for response
+            const handleMessage = (event: MessageEvent) => {
+              if (event.data?.type === 'CONTEXT_RESPONSE' && event.data?.user) {
+                const userData = {
+                  ...defaultUser,
+                  walletAddress: event.data.user.wallet?.address || null,
+                  farcasterUsername: event.data.user.username || null,
+                  farcasterFid: event.data.user.fid || null,
+                };
+                setUser(userData);
+                setIsConnected(!!userData.walletAddress);
+                localStorage.setItem('cryptoiq_user', JSON.stringify(userData));
+                window.removeEventListener('message', handleMessage);
+              }
+            };
+            window.addEventListener('message', handleMessage);
+            
+            // Cleanup after 3 seconds if no response
+            setTimeout(() => {
+              window.removeEventListener('message', handleMessage);
+            }, 3000);
+          }
+        }
+      } catch (error) {
+        console.log('Auto-connect not available:', error);
+      }
+    };
+
+    initializeWallet();
   }, []);
 
   // Save user data whenever it changes
@@ -85,29 +165,46 @@ export function UserProvider({ children }: { children: ReactNode }) {
   }, [pointsHistory]);
 
   const connectWallet = async () => {
-    // For Base Mini App, we'll use the Farcaster context
-    // This is a simplified version - in production use MiniKit SDK
     try {
-      // Check if we're in a Farcaster frame
-      if (typeof window !== 'undefined' && (window as any).farcaster) {
+      // Try Base MiniKit first
+      if (typeof window !== 'undefined') {
+        const minikit = (window as any).MiniKit;
+        if (minikit) {
+          const context = await minikit.getContext();
+          if (context?.user) {
+            setUser(prev => ({
+              ...prev,
+              walletAddress: context.user.wallet?.address || `demo_${Date.now()}`,
+              farcasterUsername: context.user.username || null,
+              farcasterFid: context.user.fid || null,
+            }));
+            setIsConnected(true);
+            return;
+          }
+        }
+
+        // Try Farcaster context
         const fc = (window as any).farcaster;
-        const context = await fc.getContext();
-        
-        setUser(prev => ({
-          ...prev,
-          walletAddress: context.user?.wallet?.address || `demo_${Date.now()}`,
-          farcasterUsername: context.user?.username || null,
-        }));
-        setIsConnected(true);
-      } else {
-        // Demo mode for testing outside Farcaster
-        const demoWallet = `0x${Math.random().toString(16).slice(2, 42)}`;
-        setUser(prev => ({
-          ...prev,
-          walletAddress: demoWallet,
-        }));
-        setIsConnected(true);
+        if (fc) {
+          const context = await fc.getContext();
+          setUser(prev => ({
+            ...prev,
+            walletAddress: context?.user?.wallet?.address || `demo_${Date.now()}`,
+            farcasterUsername: context?.user?.username || null,
+            farcasterFid: context?.user?.fid || null,
+          }));
+          setIsConnected(true);
+          return;
+        }
       }
+      
+      // Fallback: Demo mode for testing outside Base app
+      const demoWallet = `0x${Math.random().toString(16).slice(2, 42)}`;
+      setUser(prev => ({
+        ...prev,
+        walletAddress: demoWallet,
+      }));
+      setIsConnected(true);
     } catch (error) {
       console.error('Failed to connect wallet:', error);
       // Fallback to demo mode
