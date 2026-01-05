@@ -1,17 +1,7 @@
-// MiniKit configuration for Base Mini App
-// See: https://docs.base.org/mini-apps/quickstart/create-new-miniapp
+import { NextResponse } from 'next/server';
 
-export const minikitConfig = {
-  // Account association - you'll need to generate this after deploying
-  // Visit: https://base.dev to set up your account association
-  accountAssociation: {
-    header: "",
-    payload: "",
-    signature: ""
-  },
-  
-  // Mini App manifest configuration
-  miniapp: {
+export async function GET() {
+  const manifest = {
     version: "1",
     name: "Crypto IQ",
     iconUrl: "https://crypto-iq-app.vercel.app/icon.svg",
@@ -24,10 +14,16 @@ export const minikitConfig = {
       website: "https://crypto-iq-app.vercel.app"
     },
     features: {
-      // Set to true if your app uses notifications
       notifications: false
     },
-    // Set to false to be indexed
     noindex: false
-  }
-};
+  };
+
+  return NextResponse.json(manifest, {
+    headers: {
+      'Access-Control-Allow-Origin': '*',
+      'Access-Control-Allow-Methods': 'GET',
+      'Content-Type': 'application/json',
+    },
+  });
+}
