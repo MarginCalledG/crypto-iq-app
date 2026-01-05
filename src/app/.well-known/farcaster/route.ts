@@ -25,12 +25,3 @@ export async function GET() {
     },
   });
 }
-```
-
-5. Commit
-
----
-
-After deploy, test:
-```
-https://crypto-iq-app.vercel.app/.well-known/farcaster
